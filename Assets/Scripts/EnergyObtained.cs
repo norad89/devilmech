@@ -20,10 +20,10 @@ public class EnergyObtained : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Check for a match with the specified name on any GameObject that collides with your GameObject
-        if (other.gameObject.name == "Player")
+        if (other.gameObject.CompareTag("Player"))
         {
             // If the GameObject's name matches the one you suggest, destroy it
-            player.jumpForce++;
+            player.jumpForce = player.jumpForce * 2;
             Destroy(gameObject);
         }
     }
