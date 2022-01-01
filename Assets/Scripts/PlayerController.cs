@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private bool walkingInput;
     public Animator playerAnim;
+    public ParticleSystem footstepsParticle;
     private Vector3 jump;
     public bool isGrounded;
 
@@ -25,7 +26,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // left and right player movements
+        // left, right and walk player inputs
         horizontalInput = Input.GetAxis("Horizontal");
         walkingInput = Input.GetKey("left shift");
     
@@ -33,15 +34,19 @@ public class PlayerController : MonoBehaviour
             // player moves and faces right
             transform.Translate(Vector3.forward * horizontalInput * Time.deltaTime * (walkingInput ? speed/2 : speed)); 
             transform.rotation = Quaternion.Euler(0, 90, 0);
-            StartMovementAnim();
+            CheckFootsteps();
+            MovementAnimationSwitch();
         } else if (horizontalInput < 0) {
             // player moves and faces left        
             transform.Translate(Vector3.back * horizontalInput * Time.deltaTime * (walkingInput ? speed/2 : speed)); 
             transform.rotation = Quaternion.Euler(0, -90, 0);
-            StartMovementAnim();
+            CheckFootsteps();
+            MovementAnimationSwitch();
         } else {
             playerAnim.SetBool("Walk", false);
             playerAnim.SetBool("Move", false);
+            footstepsParticle.Pause();
+            footstepsParticle.Clear();
         }
         
         // player jumps
@@ -53,7 +58,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void StartMovementAnim() {
+    private void OnCollisionEnter(Collision collision) {
+        // checks if player is standing on ground
+        if (collision.gameObject.CompareTag("Ground")) {
+            isGrounded = true;
+            playerAnim.SetBool("isGrounded", true);
+        }
+    }
+
+    private void MovementAnimationSwitch() {
+        // switches player animation between walking and running
+        // TO DO: sound effects
         playerAnim.SetBool("Move", true);
         if (walkingInput) {
             playerAnim.SetBool("Walk", true);
@@ -61,13 +76,13 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("Walk", false); 
         }
     }
-
-    private void OnCollisionEnter(Collision collision) 
-    {
-        // checks if player is standing on ground
-        if (collision.gameObject.CompareTag("Ground")) {
-            isGrounded = true;
-            playerAnim.SetBool("isGrounded", true);
+    
+    private void CheckFootsteps() {
+        // if player is grounded plays footsteps particle and sound effects
+        footstepsParticle.Play();
+        if (!isGrounded) {
+            footstepsParticle.Pause();
+            footstepsParticle.Clear();
         }
     }
 }
