@@ -23,7 +23,7 @@ public class EnergyObtained : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             // If the GameObject's name matches the one you suggest, destroy it
-            player.jumpForce = player.jumpForce * 1.5f;
+            player.jumpForce = player.jumpForce * 2.25f;
             player.playerAnim.SetFloat("DoubleJump", 0.5f);
             Destroy(gameObject);
         }
