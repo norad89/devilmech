@@ -8,10 +8,13 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 250.0f;
     private float horizontalInput;
     private bool walkingInput;
+    public bool isGrounded;
+    private AudioSource playerAudio;
+    public AudioClip walkOnDirt;
+    public AudioClip runOnDirt;
     public Animator playerAnim;
     public ParticleSystem footstepsParticle;
     private Vector3 jump;
-    public bool isGrounded;
 
     Rigidbody playerRb;
 
@@ -20,6 +23,7 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody>();
         playerAnim = GetComponent<Animator>();
+        playerAudio = GetComponent<AudioSource>();
         jump = new Vector3(0.0f, 2.0f, 0.0f);
     }  
 
@@ -56,6 +60,13 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isGrounded", false);
             isGrounded = false;
         }
+
+        // player sounds
+        if (!playerAudio.isPlaying && horizontalInput != 0 && isGrounded) {
+            playerAudio.Play();
+        } else if (horizontalInput == 0 || !isGrounded) {
+            playerAudio.Stop();
+        }
     }
 
     private void OnCollisionEnter(Collision collision) {
@@ -71,8 +82,10 @@ public class PlayerController : MonoBehaviour
         // TO DO: sound effects
         playerAnim.SetBool("Move", true);
         if (walkingInput) {
+            playerAudio.clip = walkOnDirt;
             playerAnim.SetBool("Walk", true);
         } else {
+            playerAudio.clip = runOnDirt;
             playerAnim.SetBool("Walk", false); 
         }
     }
@@ -80,7 +93,7 @@ public class PlayerController : MonoBehaviour
     private void CheckFootsteps() {
         // if player is grounded plays footsteps particle and sound effects
         footstepsParticle.Play();
-        if (!isGrounded) {
+        if (!isGrounded || walkingInput) {
             footstepsParticle.Pause();
             footstepsParticle.Clear();
         }
